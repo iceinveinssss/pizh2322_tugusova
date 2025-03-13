@@ -1,56 +1,73 @@
-class Snow:
-    count: int  # Количество снежинок
-
+class SnowBase:
+    """
+    Базовый класс для снежинок (абстракция).
+    Определяет базовые свойства и методы.
+    """
     def __init__(self, count: int) -> None:
-        self.count = count  # Инициализация количества снежинок
+        self._count = max(0, count)  # Инкапсуляция: защищённый атрибут
+    
+    def get_count(self) -> int:
+        """Возвращает текущее количество снежинок."""
+        return self._count
+    
+    def set_count(self, value: int) -> None:
+        """Устанавливает количество снежинок (не меньше 0)."""
+        self._count = max(0, value)
+    
+    def __call__(self) -> str:
+        """Позволяет вызвать объект как функцию, возвращая строку с количеством снежинок."""
+        return f"Количество снежинок: {self._count}"
 
-    # Перегрузка операторов
+
+class Snow(SnowBase):
+    """
+    Класс для работы со снежинками.
+    Реализует арифметические операции и визуализацию снежинок.
+    """
     def __add__(self, other: int) -> 'Snow':
-        return Snow(self.count + other)
+        return Snow(self._count + other)
 
     def __sub__(self, other: int) -> 'Snow':
-        return Snow(max(0, self.count - other))  # Количество не может быть отрицательным
+        return Snow(max(0, self._count - other))
 
     def __mul__(self, other: int) -> 'Snow':
-        return Snow(self.count * other)
+        return Snow(self._count * other)
 
     def __truediv__(self, other: int) -> 'Snow':
-        return Snow(max(1, self.count // other))  # Минимум 1 снежинка
-
+        return Snow(max(1, self._count // other))
+    
     def makeSnow(self, snowflakes_per_row: int) -> str:
-        result = ""  # Создаём пустую строку для хранения снежинок
-        i = 0  # Счётчик для отслеживания текущей позиции снежинок
-    
-        # Цикл продолжается, пока количество добавленных снежинок меньше общего числа
-        while i < self.count:
-            # Создаём строку снежинок:
-            # Берём минимум из снежинок на ряд или оставшихся снежинок
-            row = '*' * min(snowflakes_per_row, self.count - i)
-    
-            # Добавляем строку снежинок и символ переноса строки
-            result += row + '\n'
-    
-            # Увеличиваем счётчик на количество снежинок в одном ряду
-            i += snowflakes_per_row
-    
-        # Убираем лишний перенос строки в конце строки перед возвратом
+        """
+        Формирует снежинки в ряды.
+        :param snowflakes_per_row: Количество снежинок в одном ряду.
+        :return: Строковое представление снежинок.
+        """
+        result = "".join('*' * min(snowflakes_per_row, self._count - i) + '\n' 
+                          for i in range(0, self._count, snowflakes_per_row))
         return result.strip()
 
 
-
 # Пример использования
-snow: Snow = Snow(12)
-print(snow.makeSnow(3))  # Отобразить снежинки по 5 в ряду
+snow = Snow(12)
+print(snow.makeSnow(3))  # Отобразить снежинки по 3 в ряду
 
 # Демонстрация перегрузки операторов
 snow = snow + 3
-print("\nПосле добавления снежинок:\n", snow.makeSnow(4))
+print("\nПосле добавления снежинок:")
+print(snow.makeSnow(4))
 
 snow = snow - 5
-print("\nПосле удаления снежинок:\n", snow.makeSnow(3))
+print("\nПосле удаления снежинок:")
+print(snow.makeSnow(3))
 
 snow = snow * 2
-print("\nПосле удвоения снежинок:\n", snow.makeSnow(6))
+print("\nПосле удвоения снежинок:")
+print(snow.makeSnow(6))
 
 snow = snow / 3
-print("\nПосле деления количества снежинок на 3:\n", snow.makeSnow(4))
+print("\nПосле деления количества снежинок на 3:")
+print(snow.makeSnow(4))
+
+# Вызов объекта как функции(__call__)
+print("\nВызов объекта:")
+print(snow())
